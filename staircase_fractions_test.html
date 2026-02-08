@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Staircase Fractions — Practice Retest</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Manrope:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+  :root {
+    --tan:#D4A27F;--terracotta:#C15F3C;--terracotta-dark:#A04E30;
+    --cream:#FAF6F1;--cream-dark:#F0EBE3;--warm-white:#FFFCF8;--parchment:#F5F0E8;
+    --ink:#1F1915;--ink-light:#4A3F35;--ink-muted:#8B7E74;
+    --border:#E0D8CE;--border-light:#EDE7DF;--canvas-bg:#FDFBF8;
+    --green:#3D8B37;--blue:#3B6B9A;
+    --shadow:0 1px 3px rgba(31,25,21,.06),0 4px 12px rgba(31,25,21,.04);
+    --radius:10px;
+    --font-sans:'Manrope','Noto Sans SC',system-ui,sans-serif;
+    --font-serif:'Newsreader','Georgia',serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-sans);background:var(--cream);color:var(--ink);line-height:1.65;-webkit-text-size-adjust:100%}
+
+  .header{background:var(--warm-white);border-bottom:1px solid var(--border);padding:20px 24px 16px;position:sticky;top:0;z-index:100}
+  .header-inner{max-width:820px;margin:0 auto}
+  .header-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .header-brand .logo-mark{width:28px;height:28px;background:var(--terracotta);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;font-family:var(--font-serif)}
+  .header h1{font-family:var(--font-serif);font-size:20px;font-weight:500;color:var(--ink);letter-spacing:-.3px}
+  .header .subtitle{font-size:13px;color:var(--ink-muted);margin-top:1px}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .toolbar button{padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:var(--warm-white);color:var(--ink-light);font-size:12.5px;font-family:var(--font-sans);font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+  .toolbar button:hover{background:var(--cream-dark);border-color:#ccc5ba}
+  .toolbar button.active{background:var(--ink);color:white;border-color:var(--ink)}
+  .toolbar .sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+  .toolbar button.submit-btn{background:var(--terracotta);color:white;border-color:var(--terracotta);font-weight:600}
+  .toolbar button.submit-btn:hover{background:var(--terracotta-dark)}
+  .toolbar button.danger{color:#b44;border-color:#e0c0b0}
+  .toolbar button.danger:hover{background:#fdf0ed}
+
+  .pen-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .pen-row .label{font-size:11px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .pen-size{display:flex;gap:5px}
+  .pen-size button{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--warm-white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .pen-size button.active{background:var(--ink);border-color:var(--ink)}
+  .pen-size button .dot{border-radius:50%;background:var(--ink-light)}
+  .pen-size button.active .dot{background:white}
+  .color-picker{display:flex;gap:4px}
+  .color-picker button{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s}
+  .color-picker button.active{border-color:var(--ink);transform:scale(1.1)}
+
+  .container{max-width:820px;margin:0 auto;padding:20px 16px 100px}
+
+  .name-field{background:var(--warm-white);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap;border:1px solid var(--border-light)}
+  .name-field label{font-weight:600;font-size:13px;color:var(--ink-light);white-space:nowrap}
+  .name-field input{flex:1;min-width:140px;border:none;border-bottom:1.5px solid var(--border);font-family:var(--font-sans);font-size:15px;padding:3px 0;background:transparent;outline:none;color:var(--ink)}
+  .name-field input:focus{border-color:var(--terracotta)}
+
+  .section-header{margin:28px 0 4px;padding:10px 16px;border-radius:var(--radius);background:var(--ink);color:var(--cream)}
+  .section-header h2{font-family:var(--font-serif);font-size:16px;font-weight:500;letter-spacing:-.2px}
+  .section-goal{font-size:12px;color:var(--ink-muted);margin:3px 0 14px 4px}
+
+  .q-card{background:var(--warm-white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px;border:1px solid var(--border-light)}
+  .q-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:var(--terracotta);color:white;border-radius:50%;font-weight:700;font-size:13px;margin-right:8px;flex-shrink:0}
+  .q-title{font-weight:600;font-size:14px;line-height:1.5;color:var(--ink)}
+  .q-title-row{display:flex;align-items:flex-start;margin-bottom:4px;flex-wrap:wrap}
+
+  .cn-toggle{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;border:none;background:transparent;cursor:pointer;font-size:13px;margin-left:6px;opacity:.3;transition:all .2s;flex-shrink:0}
+  .cn-toggle:hover{opacity:.6;background:rgba(193,95,60,.06)}
+  .cn-toggle.active{opacity:.85;background:rgba(193,95,60,.1)}
+  .cn-hint{font-size:12.5px;color:var(--ink-light);margin:4px 0 8px 34px;font-family:'Noto Sans SC',var(--font-sans);display:none;padding:6px 12px;background:#FEF9F0;border-radius:6px;border-left:3px solid var(--tan);animation:fadeIn .2s ease}
+  .cn-hint.show{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+  .q-hint{font-size:12px;color:var(--ink-muted);font-style:italic;background:var(--parchment);padding:8px 12px;border-radius:7px;margin:8px 0 12px;border-left:3px solid var(--tan)}
+  .q-hint .cn-sub{display:none;font-family:'Noto Sans SC',var(--font-sans);font-style:normal;color:var(--ink-light);margin-top:4px;font-size:12px}
+  .q-hint .cn-sub.show{display:block}
+
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px;font-size:15px;line-height:1.1}
+  .frac .num{padding-bottom:1px}.frac .bar{width:100%;min-width:12px;height:1.5px;background:var(--ink)}.frac .den{padding-top:1px}
+  .math-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:16px;padding:6px 0}
+  .math-line .op{margin:0 2px;font-size:14px;color:var(--ink-muted)}
+
+  .example-box{background:var(--parchment);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:10px 0}
+  .example-row{display:flex;align-items:center;gap:6px;padding:5px 0}
+  .example-row .label{font-weight:700;color:var(--terracotta);font-size:13px;width:48px}
+
+  .sub-problems{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+  @media(max-width:600px){.sub-problems{grid-template-columns:1fr}}
+  .sub-problem{border:1px solid var(--border-light);border-radius:8px;padding:10px 12px;background:var(--cream)}
+  .sub-label{font-weight:700;font-size:13px;margin-bottom:6px;color:var(--terracotta)}
+
+  .canvas-wrap{position:relative;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin:10px 0 4px;background:var(--canvas-bg);touch-action:none;cursor:crosshair}
+  .canvas-wrap.eraser-mode{cursor:grab}
+  .canvas-wrap canvas{display:block;width:100%;touch-action:none}
+  .canvas-label{position:absolute;top:5px;right:7px;font-size:10px;color:#ccc5;pointer-events:none;z-index:2}
+  .canvas-actions{position:absolute;bottom:4px;right:4px;display:flex;gap:3px;z-index:2}
+  .canvas-actions button{width:26px;height:26px;border:1px solid rgba(0,0,0,.06);background:rgba(255,255,255,.75);border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;color:#bbb5;line-height:1}
+  .canvas-actions button:hover{background:#fff;color:var(--ink-muted);border-color:var(--border)}
+
+  .exporting .canvas-actions{display:none!important}
+  .exporting .canvas-label{display:none!important}
+  .exporting .cn-toggle{display:none!important}
+  .exporting .cn-hint{display:none!important}
+  .exporting .header{position:relative!important}
+
+  .step-label{display:inline-block;padding:4px 12px;border-radius:14px;font-size:11.5px;font-weight:700;margin:10px 0 4px;letter-spacing:.2px}
+  .step-label.predict{background:#E8F5E4;color:var(--green);border:1px solid #C5E6BF}
+  .step-label.verify{background:#E4EFF8;color:var(--blue);border:1px solid #B8D4EA}
+
+  .pattern-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  .pattern-table th{background:var(--cream-dark);padding:8px 6px;font-size:11.5px;font-weight:700;text-align:center;border:1.5px solid var(--border);color:var(--ink-light);text-transform:uppercase;letter-spacing:.3px}
+  .pattern-table td{border:1.5px solid var(--border);text-align:center;padding:0;height:70px;vertical-align:middle}
+  .pattern-table td.n-col{font-weight:700;width:50px;background:var(--parchment);padding:8px;font-family:var(--font-serif);font-size:16px}
+  .pattern-table td.filled{background:#F8F4EE;padding:8px;font-size:14px}
+  .pattern-table td .cell-canvas{width:100%;height:70px;display:block;touch-action:none;cursor:crosshair}
+
+  .conclusion-box{background:#FEF9F0;border:1.5px solid var(--tan);border-radius:8px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .conclusion-box strong{color:var(--terracotta);font-family:var(--font-serif)}
+
+  .summary-table{width:100%;border-collapse:collapse;margin:10px 0}
+  .summary-table th{background:var(--cream-dark);padding:8px 12px;font-size:11.5px;text-align:center;border:1.5px solid var(--border);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+  .summary-table td{border:1.5px solid var(--border);text-align:center;padding:0;height:70px}
+  .summary-table td.lc{padding:8px 12px;font-size:14px;background:var(--parchment)}
+  .summary-table td.fc{padding:8px;background:#F8F4EE;font-size:14px}
+
+  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  @media(max-width:500px){.checklist{grid-template-columns:1fr}}
+  .check-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--cream);border-radius:7px;font-size:12.5px;border:1px solid var(--border-light)}
+  .check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--terracotta)}
+
+  .footer{text-align:center;padding:32px 16px;font-size:11px;color:var(--ink-muted);font-family:var(--font-serif);letter-spacing:.2px}
+
+  .export-overlay{display:none;position:fixed;inset:0;background:rgba(31,25,21,.6);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  .export-overlay.show{display:flex}
+  .export-overlay .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--tan);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .export-overlay p{color:var(--cream);font-size:15px;font-weight:500;font-family:var(--font-serif)}
+
+  .submit-bottom{text-align:center;padding:28px 0}
+  .submit-bottom button{padding:13px 36px;font-size:15px;font-weight:600;font-family:var(--font-sans);background:var(--terracotta);color:white;border:none;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(193,95,60,.25);transition:all .2s;letter-spacing:.2px}
+  .submit-bottom button:hover{background:var(--terracotta-dark);box-shadow:0 4px 16px rgba(193,95,60,.3)}
+  .submit-bottom p{font-size:12px;color:var(--ink-muted);margin-top:8px}
+
+  @media(max-width:600px){.header h1{font-size:18px}.q-card{padding:14px}.container{padding:12px 10px 80px}}
+</style>
+</head>
+<body>
+<div class="export-overlay" id="exportOverlay"><div class="spinner"></div><p>Generating PDF…</p></div>
+<div id="pageRoot">
+<div class="header" id="stickyHeader"><div class="header-inner">
+  <div class="header-brand"><div class="logo-mark">S</div><div><h1>Staircase Fractions</h1><div class="subtitle">Practice Retest · Criterion B: Investigating Patterns</div></div></div>
+  <div class="toolbar">
+    <button id="penBtn" class="active" onclick="setTool('pen')">✏️ Pen</button>
+    <button id="eraserBtn" onclick="setTool('eraser')">🧹 Eraser</button>
+    <button onclick="globalUndo()">↩ Undo</button>
+    <span class="sep"></span>
+    <button class="danger" onclick="clearAllConfirm()">🗑 Clear All</button>
+    <span class="sep"></span>
+    <button class="submit-btn" onclick="exportPDF()">📄 Export PDF</button>
+  </div>
+  <div class="pen-row">
+    <span class="label">Size</span>
+    <div class="pen-size">
+      <button class="active" onclick="setPenSize(2,this)"><span class="dot" style="width:4px;height:4px"></span></button>
+      <button onclick="setPenSize(3.5,this)"><span class="dot" style="width:6px;height:6px"></span></button>
+      <button onclick="setPenSize(5,this)"><span class="dot" style="width:9px;height:9px"></span></button>
+    </div>
+    <span class="label" style="margin-left:10px">Color</span>
+    <div class="color-picker">
+      <button class="active" style="background:#1F1915" onclick="setPenColor('#1F1915',this)"></button>
+      <button style="background:#3B6B9A" onclick="setPenColor('#3B6B9A',this)"></button>
+      <button style="background:#C15F3C" onclick="setPenColor('#C15F3C',this)"></button>
+      <button style="background:#3D8B37" onclick="setPenColor('#3D8B37',this)"></button>
+    </div>
+  </div>
+</div></div>
+<div class="container" id="app"></div>
+</div>
+
+<script>
+const DPR=window.devicePixelRatio||2;
+let currentTool='pen',penSize=2,penColor='#1F1915',eraserSize=20,allCanvases=[],lastActiveCanvas=null;
+function setTool(t){currentTool=t;document.getElementById('penBtn').classList.toggle('active',t==='pen');document.getElementById('eraserBtn').classList.toggle('active',t==='eraser');document.querySelectorAll('.canvas-wrap').forEach(w=>w.classList.toggle('eraser-mode',t==='eraser'));}
+function setPenSize(s,b){penSize=s;document.querySelectorAll('.pen-size button').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
+function setPenColor(c,b){penColor=c;document.querySelectorAll('.color-picker button').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
+function globalUndo(){if(lastActiveCanvas&&lastActiveCanvas._strokes&&lastActiveCanvas._strokes.length>0){lastActiveCanvas._strokes.pop();redrawCanvas(lastActiveCanvas);}}
+function clearAllConfirm(){if(confirm('Clear all writing?')){allCanvases.forEach(c=>{c._strokes=[];redrawCanvas(c);});}}
+function redrawCanvas(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);drawGuideLines(cv);if(cv._strokes)cv._strokes.forEach(s=>{ctx.beginPath();ctx.strokeStyle=s.color;ctx.lineWidth=s.size*DPR;ctx.lineCap='round';ctx.lineJoin='round';s.points.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();});}
+function drawGuideLines(cv){const ctx=cv.getContext('2d');ctx.strokeStyle='#E8E2D8';ctx.lineWidth=0.5*DPR;const sp=32*DPR;for(let y=sp;y<cv.height;y+=sp){ctx.beginPath();ctx.setLineDash([4*DPR,6*DPR]);ctx.moveTo(8*DPR,y);ctx.lineTo(cv.width-8*DPR,y);ctx.stroke();}ctx.setLineDash([]);}
+function initCanvas(cv,h){const wrap=cv.parentElement,w=wrap.getBoundingClientRect().width;cv.style.width=w+'px';cv.style.height=h+'px';cv.width=w*DPR;cv.height=h*DPR;cv._strokes=[];allCanvases.push(cv);drawGuideLines(cv);let drawing=false,cur=null;
+function gp(e){const r=cv.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*DPR,y:(t.clientY-r.top)*DPR};}
+function sd(e){e.preventDefault();drawing=true;lastActiveCanvas=cv;const p=gp(e);if(currentTool==='pen')cur={color:penColor,size:penSize,points:[p]};else erAt(p);}
+function md(e){if(!drawing)return;e.preventDefault();const p=gp(e);if(currentTool==='pen'&&cur){cur.points.push(p);const ctx=cv.getContext('2d'),pts=cur.points;if(pts.length>=2){ctx.beginPath();ctx.strokeStyle=cur.color;ctx.lineWidth=cur.size*DPR;ctx.lineCap='round';ctx.lineJoin='round';ctx.moveTo(pts[pts.length-2].x,pts[pts.length-2].y);ctx.lineTo(pts[pts.length-1].x,pts[pts.length-1].y);ctx.stroke();}}else if(currentTool==='eraser')erAt(p);}
+function ed(){if(!drawing)return;drawing=false;if(currentTool==='pen'&&cur&&cur.points.length>0)cv._strokes.push(cur);cur=null;}
+function erAt(p){const r=eraserSize*DPR,b=cv._strokes.length;cv._strokes=cv._strokes.filter(s=>!s.points.some(pt=>Math.hypot(pt.x-p.x,pt.y-p.y)<r));if(cv._strokes.length!==b)redrawCanvas(cv);}
+cv.addEventListener('pointerdown',sd,{passive:false});cv.addEventListener('pointermove',md,{passive:false});cv.addEventListener('pointerup',ed);cv.addEventListener('pointerleave',ed);cv.addEventListener('pointercancel',ed);}
+
+function toggleCn(id){const el=document.getElementById(id),btn=document.querySelector(`[data-target="${id}"]`);el.classList.toggle('show');if(btn)btn.classList.toggle('active',el.classList.contains('show'));}
+function undoCanvas(id){const c=document.getElementById(id);if(c&&c._strokes&&c._strokes.length>0){c._strokes.pop();redrawCanvas(c);}}
+function clearCanvas(id){const c=document.getElementById(id);if(c){c._strokes=[];redrawCanvas(c);}}
+
+async function exportPDF(){
+  const name=document.getElementById('studentName').value.trim()||'Student';
+  const overlay=document.getElementById('exportOverlay');overlay.classList.add('show');
+  document.getElementById('pageRoot').classList.add('exporting');await new Promise(r=>setTimeout(r,100));
+  try{const container=document.getElementById('app'),header=document.getElementById('stickyHeader');
+  const hc=await html2canvas(header,{scale:2,useCORS:true,backgroundColor:'#FFFCF8',logging:false});
+  const caps=[hc];for(let i=0;i<container.children.length;i++){const el=container.children[i];if(el.offsetHeight===0)continue;caps.push(await html2canvas(el,{scale:2,useCORS:true,backgroundColor:null,logging:false}));}
+  const{jsPDF}=window.jspdf,pdf=new jsPDF('p','mm','a4');
+  const pW=210,pH=297,m=10,cW=pW-m*2;let cY=m;
+  for(let i=0;i<caps.length;i++){const cv=caps[i],iW=cW,iH=(cv.height/cv.width)*iW;
+  if(cY+iH>pH-m&&cY>m+10){pdf.addPage();cY=m;}
+  if(iH>pH-m*2){const s=(pH-m*2)/iH,sw=iW*s,sh=iH*s;pdf.addImage(cv.toDataURL('image/png'),m+(cW-sw)/2,cY,sw,sh);pdf.addPage();cY=m;}
+  else{pdf.addImage(cv.toDataURL('image/png'),m,cY,iW,iH);cY+=iH+3;}}
+  pdf.setFontSize(8);pdf.setTextColor(150);pdf.text(`${name} · ${new Date().toLocaleString()}`,m,pH-5);
+  pdf.save(`Staircase_Fractions_${name.replace(/\s+/g,'_')}.pdf`);
+  }catch(e){console.error(e);alert('Error generating PDF.');}
+  document.getElementById('pageRoot').classList.remove('exporting');overlay.classList.remove('show');}
+
+function F(n,d){return`<span class="frac"><span class="num">${n}</span><span class="bar"></span><span class="den">${d}</span></span>`;}
+function O(s){return`<span class="op">${s}</span>`;}
+let cid=0;
+function W(h=200,lb='✍'){const id='c_'+(cid++);return`<div class="canvas-wrap"><span class="canvas-label">${lb}</span><canvas id="${id}" data-h="${h}"></canvas><div class="canvas-actions"><button title="Undo" onclick="undoCanvas('${id}')">⟲</button><button title="Clear" onclick="clearCanvas('${id}')">🗑</button></div></div>`;}
+function TC(id,h=70){return`<canvas id="${id}" class="cell-canvas" data-h="${h}" data-cell="true"></canvas>`;}
+let eid=0;
+function E(cn){const id='cn_'+(eid++);return`<button class="cn-toggle" data-target="${id}" onclick="toggleCn('${id}')" title="中文提示">👁</button><div class="cn-hint" id="${id}">${cn}</div>`;}
+function EH(cn){const id='cn_'+(eid++);return`<button class="cn-toggle" style="margin-left:4px;vertical-align:middle" data-target="${id}" onclick="toggleCn('${id}')" title="中文提示">👁</button><div class="cn-sub" id="${id}">${cn}</div>`;}
+
+const app=document.getElementById('app');let html='';
+
+html+=`<div class="name-field"><label>Name:</label><input id="studentName" type="text" placeholder="Enter your name…"><label>Date:</label><input type="text" value="${new Date().toLocaleDateString()}" style="max-width:140px"></div>`;
+
+// A
+html+=`<div class="section-header"><h2>Section A — Fraction Multiplication</h2></div>`;
+html+=`<p class="section-goal">Goal: Build accurate fraction multiplication and cancellation skills</p>`;
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">1</span><span class="q-title">Calculate and simplify. Show your working.</span>${E('计算并化简，写出过程。')}</div>
+<div class="sub-problems">
+<div class="sub-problem"><div class="sub-label">(a)</div><div class="math-line">${F(1,3)} ${O('×')} ${F(3,4)} ${O('=')}</div>${W(160)}</div>
+<div class="sub-problem"><div class="sub-label">(b)</div><div class="math-line">${F(2,5)} ${O('×')} ${F(5,6)} ${O('=')}</div>${W(160)}</div>
+<div class="sub-problem"><div class="sub-label">(c)</div><div class="math-line">${F(1,2)} ${O('×')} ${F(2,3)} ${O('×')} ${F(3,4)} ${O('=')}</div>${W(180)}</div>
+<div class="sub-problem"><div class="sub-label">(d)</div><div class="math-line">${F(3,4)} ${O('×')} ${F(4,5)} ${O('×')} ${F(5,6)} ${O('=')}</div>${W(180)}</div>
+</div></div>`;
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">2</span><span class="q-title">What pattern do you notice in the cancellation above?</span>${E('你注意到上面的约分有什么规律？')}</div>${W(180)}</div>`;
+
+// B
+html+=`<div class="section-header"><h2>Section B — Discover & Describe Rules</h2></div>`;
+html+=`<p class="section-goal">Goal: Describe patterns precisely using the variable n</p>`;
+html+=`<div class="q-card"><p style="font-weight:600;margin-bottom:8px;font-family:var(--font-serif)">Pattern starting from ${F(1,2)} :</p>
+<div class="example-box">
+<div class="example-row"><span class="label">n = 2:</span>${F(1,2)} ${O('×')} ${F(2,3)} ${O('=')} ${F(1,3)}</div>
+<div class="example-row"><span class="label">n = 3:</span>${F(1,2)} ${O('×')} ${F(2,3)} ${O('×')} ${F(3,4)} ${O('=')} ${F(1,4)}</div>
+<div class="example-row"><span class="label">n = 4:</span>${F(1,2)} ${O('×')} ${F(2,3)} ${O('×')} ${F(3,4)} ${O('×')} ${F(4,5)} ${O('=')} ${F(1,5)}</div>
+</div></div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">3</span><span class="q-title">Complete the table below.</span>${E('完成下表，第一行已给出。')}</div>
+<table class="pattern-table"><tr><th>n</th><th>Last fraction</th><th>Final product</th><th>Relationship: product = ?</th></tr>
+<tr><td class="n-col">2</td><td class="filled">${F(2,3)}</td><td class="filled">${F(1,3)}</td><td class="filled">${F(1,'2+1')} = ${F(1,3)}</td></tr>
+<tr><td class="n-col">3</td><td>${TC('t1_3a')}</td><td>${TC('t1_3b')}</td><td>${TC('t1_3c')}</td></tr>
+<tr><td class="n-col">4</td><td>${TC('t1_4a')}</td><td>${TC('t1_4b')}</td><td>${TC('t1_4c')}</td></tr>
+<tr><td class="n-col">5</td><td>${TC('t1_5a')}</td><td>${TC('t1_5b')}</td><td>${TC('t1_5c')}</td></tr>
+<tr><td class="n-col">7</td><td>${TC('t1_7a')}</td><td>${TC('t1_7b')}</td><td>${TC('t1_7c')}</td></tr>
+<tr><td class="n-col">10</td><td>${TC('t1_10a')}</td><td>${TC('t1_10b')}</td><td>${TC('t1_10c')}</td></tr>
+</table></div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">4</span><span class="q-title">Describe a general rule using the variable n.</span>${E('用变量 n 描述通用规则。')}</div>
+<div class="q-hint">Start with: "If there are n fractions starting from ${F(1,2)}, then the product is …"${EH('提示：用"如果有 n 个分数，从 1/2 开始，那么乘积是……"')}</div>${W(220)}</div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">5</span><span class="q-title">PREDICT the product for n = 15, then VERIFY.</span>${E('用规则预测 n = 15 的结果，再直接计算验证。')}</div>
+<div class="step-label predict">Step 1 — Predict using your rule</div>${W(180)}
+<div class="step-label verify">Step 2 — Direct calculation to verify</div>${W(280)}
+<div class="conclusion-box"><strong>Conclusion:</strong> Do both methods give the same answer? ${W(80,'')}</div></div>`;
+
+// C
+html+=`<div class="section-header"><h2>Section C — Extending the Pattern</h2></div>`;
+html+=`<p class="section-goal">Goal: Generalize to a different starting fraction</p>`;
+html+=`<div class="q-card"><p style="font-weight:600;margin-bottom:6px;font-family:var(--font-serif)">Now the starting fraction changes to ${F(2,3)}</p>
+<div class="q-title-row"><span class="q-num">6</span><span class="q-title">Calculate the following. Show full working.</span>${E('计算以下各题，写出完整过程。')}</div>
+<div class="sub-problems" style="grid-template-columns:1fr">
+<div class="sub-problem"><div class="sub-label">(a)</div><div class="math-line">${F(2,3)} ${O('×')} ${F(3,4)} ${O('=')}</div>${W(160)}</div>
+<div class="sub-problem"><div class="sub-label">(b)</div><div class="math-line">${F(2,3)} ${O('×')} ${F(3,4)} ${O('×')} ${F(4,5)} ${O('=')}</div>${W(160)}</div>
+<div class="sub-problem"><div class="sub-label">(c)</div><div class="math-line">${F(2,3)} ${O('×')} ${F(3,4)} ${O('×')} ${F(4,5)} ${O('×')} ${F(5,6)} ${O('=')}</div>${W(160)}</div>
+<div class="sub-problem"><div class="sub-label">(d)</div><div class="math-line">${F(2,3)} ${O('×')} ${F(3,4)} ${O('×')} ${F(4,5)} ${O('×')} ${F(5,6)} ${O('×')} ${F(6,7)} ${O('=')}</div>${W(180)}</div>
+</div></div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">7</span><span class="q-title">Complete this table for the pattern starting from ${F(2,3)}.</span>${E('完成以 2/3 为起始的规律表格。')}</div>
+<table class="pattern-table"><tr><th>n</th><th>Last fraction</th><th>Final product</th><th>Relationship: product = ?</th></tr>
+<tr><td class="n-col">2</td><td class="filled">${F(3,4)}</td><td class="filled">${F(2,4)}</td><td class="filled">${F(2,'2+2')} = ${F(2,4)}</td></tr>
+<tr><td class="n-col">3</td><td>${TC('t2_3a')}</td><td>${TC('t2_3b')}</td><td>${TC('t2_3c')}</td></tr>
+<tr><td class="n-col">4</td><td>${TC('t2_4a')}</td><td>${TC('t2_4b')}</td><td>${TC('t2_4c')}</td></tr>
+<tr><td class="n-col">5</td><td>${TC('t2_5a')}</td><td>${TC('t2_5b')}</td><td>${TC('t2_5c')}</td></tr>
+<tr><td class="n-col">8</td><td>${TC('t2_8a')}</td><td>${TC('t2_8b')}</td><td>${TC('t2_8c')}</td></tr>
+</table></div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">8</span><span class="q-title">Describe a general rule for the pattern starting from ${F(2,3)}.</span>${E('描述以 2/3 为起始的通用规则，用变量 n。')}</div>
+<div class="q-hint">Start with: "If there are n fractions starting from ${F(2,3)}, then the product is …"${EH('提示：分子和起始分数有什么关系？分母和 n 有什么关系？')}</div>${W(220)}</div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">9</span><span class="q-title">PREDICT the result for n = 10 (starting from ${F(2,3)}), then VERIFY.</span>${E('用规则预测 n = 10 的结果，再验证。')}</div>
+<div class="step-label predict">Step 1 — Predict using your rule</div>${W(180)}
+<div class="step-label verify">Step 2 — Direct calculation to verify</div>${W(280)}
+<div class="conclusion-box"><strong>Conclusion:</strong> Both methods give __________ , so my rule is verified. ✓ ${W(80,'')}</div></div>`;
+
+// D
+html+=`<div class="section-header"><h2>Section D — Generalizing Further · Challenge</h2></div>`;
+html+=`<p class="section-goal">Goal: Discover the universal rule for any starting fraction</p>`;
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">10</span><span class="q-title">Now start from ${F(3,4)}. Calculate:</span>${E('现在从 3/4 开始，计算：')}</div>
+<div class="sub-problems" style="grid-template-columns:1fr">
+<div class="sub-problem"><div class="sub-label">(a)</div><div class="math-line">${F(3,4)} ${O('×')} ${F(4,5)} ${O('=')}</div>${W(150)}</div>
+<div class="sub-problem"><div class="sub-label">(b)</div><div class="math-line">${F(3,4)} ${O('×')} ${F(4,5)} ${O('×')} ${F(5,6)} ${O('=')}</div>${W(150)}</div>
+<div class="sub-problem"><div class="sub-label">(c)</div><div class="math-line">${F(3,4)} ${O('×')} ${F(4,5)} ${O('×')} ${F(5,6)} ${O('×')} ${F(6,7)} ${O('=')}</div>${W(150)}</div>
+</div></div>`;
+
+html+=`<div class="q-card"><div class="q-title-row"><span class="q-num">11</span><span class="q-title">Write a GENERAL rule for ANY starting fraction ${F('a','a+1')}.</span>${E('写出适用于任意起始分数 a/(a+1) 的通用规则。')}</div>
+<div class="q-hint">Compare your rules from Sections B and C. What stays the same? What changes?${EH('提示：比较 B 和 C 部分的规则，什么相同？什么变了？')}</div>
+<table class="summary-table"><tr><th>Starting fraction</th><th>Rule for product (use n)</th></tr>
+<tr><td class="lc">${F(1,2)} (a = 1)</td><td class="fc">product = ${F(1,'n + 1')}</td></tr>
+<tr><td class="lc">${F(2,3)} (a = 2)</td><td>${TC('sa2',70)}</td></tr>
+<tr><td class="lc">${F(3,4)} (a = 3)</td><td>${TC('sa3',70)}</td></tr>
+<tr><td class="lc" style="font-weight:700">${F('a','a+1')} (general)</td><td>${TC('sag',70)}</td></tr>
+</table>
+<p style="font-weight:600;margin-top:14px;font-size:14px;font-family:var(--font-serif)">General rule in words:</p>${W(240)}</div>`;
+
+html+=`<div class="q-card"><p style="font-weight:600;margin-bottom:8px">✅ Checklist before submitting</p>
+<div class="checklist">
+<label class="check-item"><input type="checkbox"> All calculations show full working</label>
+<label class="check-item"><input type="checkbox"> Rules use the variable n</label>
+<label class="check-item"><input type="checkbox"> Predictions use the rule FIRST</label>
+<label class="check-item"><input type="checkbox"> Verification shows direct calculation</label>
+</div></div>`;
+
+html+=`<div class="submit-bottom"><button onclick="exportPDF()">📄 Submit as PDF</button><p>Your handwriting will be captured in the exported PDF</p></div>`;
+html+=`<div class="footer">Staircase Fractions · Practice Retest</div>`;
+app.innerHTML=html;
+
+window.addEventListener('load',()=>{
+  document.querySelectorAll('canvas[id^="c_"]').forEach(c=>initCanvas(c,parseInt(c.dataset.h)||200));
+  document.querySelectorAll('canvas[data-cell="true"]').forEach(c=>initCanvas(c,parseInt(c.dataset.h)||70));
+});
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{allCanvases.forEach(c=>{const s=c._strokes||[],h=parseInt(c.dataset.h)||200,w=c.parentElement.getBoundingClientRect().width;c.style.width=w+'px';c.style.height=h+'px';c.width=w*DPR;c.height=h*DPR;c._strokes=s;redrawCanvas(c);});},200);});
+</script>
+</body>
+</html>
