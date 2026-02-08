@@ -98,7 +98,7 @@
   .canvas-wrap canvas{display:block;width:100%;touch-action:none}
   .canvas-label{position:absolute;top:5px;right:7px;font-size:10px;color:#ccc5;pointer-events:none;z-index:2}
   .canvas-actions{position:absolute;bottom:4px;right:4px;display:flex;gap:3px;z-index:2}
-  .canvas-actions button{width:26px;height:26px;border:1px solid rgba(0,0,0,.06);background:rgba(255,255,255,.75);border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;color:#bbb5;line-height:1}
+  .canvas-actions button{width:26px;height:26px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;color:#999;line-height:1}
   .canvas-actions button:hover{background:#fff;color:var(--ink-muted);border-color:var(--border)}
 
   .exporting .canvas-actions{display:none!important}
@@ -106,6 +106,8 @@
   .exporting .cn-toggle{display:none!important}
   .exporting .cn-hint{display:none!important}
   .exporting .header{position:relative!important}
+  .exporting .fs-bar{display:none!important}
+  .exporting .cell-fs-btn{display:none!important}
 
   .step-label{display:inline-block;padding:4px 12px;border-radius:14px;font-size:11.5px;font-weight:700;margin:10px 0 4px;letter-spacing:.2px}
   .step-label.predict{background:#E8F5E4;color:var(--green);border:1px solid #C5E6BF}
@@ -144,6 +146,24 @@
   .submit-bottom button{padding:13px 36px;font-size:15px;font-weight:600;font-family:var(--font-sans);background:var(--terracotta);color:white;border:none;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(193,95,60,.25);transition:all .2s;letter-spacing:.2px}
   .submit-bottom button:hover{background:var(--terracotta-dark);box-shadow:0 4px 16px rgba(193,95,60,.3)}
   .submit-bottom p{font-size:12px;color:var(--ink-muted);margin-top:8px}
+
+  .cell-wrap{position:relative;width:100%}
+  .cell-fs-btn{position:absolute;bottom:2px;right:2px;width:20px;height:20px;border:1px solid rgba(0,0,0,.06);background:rgba(255,255,255,.6);border-radius:4px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:#bbb;transition:all .15s;z-index:1;padding:0;line-height:1}
+  .cell-fs-btn:hover{background:#fff;color:var(--ink-muted);border-color:var(--border)}
+  .canvas-actions .fs-btn{font-size:14px}
+
+  .canvas-wrap.fullscreen,.cell-wrap.fullscreen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;border-radius:0;border:none;margin:0;background:var(--canvas-bg)}
+  .canvas-wrap.fullscreen canvas,.cell-wrap.fullscreen canvas{width:100%!important;height:100%!important}
+  .canvas-wrap.fullscreen .canvas-actions,.cell-wrap.fullscreen .cell-fs-btn{display:none}
+  .canvas-wrap.fullscreen .canvas-label{display:none}
+
+  .fs-bar{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:3;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:10px;padding:6px 12px;gap:8px;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,.12);border:1px solid var(--border-light)}
+  .canvas-wrap.fullscreen .fs-bar,.cell-wrap.fullscreen .fs-bar{display:flex}
+  .fs-bar button{padding:8px 14px;border-radius:7px;border:1px solid var(--border);background:var(--warm-white);font-size:13px;cursor:pointer;font-family:var(--font-sans);transition:all .15s;display:flex;align-items:center;gap:4px;color:var(--ink-light)}
+  .fs-bar button:hover{background:var(--cream-dark);border-color:#ccc5ba}
+  .fs-bar .fs-close-btn{background:var(--terracotta);color:white;border-color:var(--terracotta);font-weight:600}
+  .fs-bar .fs-close-btn:hover{background:var(--terracotta-dark)}
+  .fs-bar .sep{width:1px;height:20px;background:var(--border);margin:0 2px}
 
   @media(max-width:600px){.header h1{font-size:18px}.q-card{padding:14px}.container{padding:12px 10px 80px}}
 </style>
@@ -203,7 +223,25 @@ function toggleCn(id){const el=document.getElementById(id),btn=document.querySel
 function undoCanvas(id){const c=document.getElementById(id);if(c&&c._strokes&&c._strokes.length>0){c._strokes.pop();redrawCanvas(c);}}
 function clearCanvas(id){const c=document.getElementById(id);if(c){c._strokes=[];redrawCanvas(c);}}
 
+function toggleFullscreen(id){const cv=document.getElementById(id);const wrap=cv.closest('.canvas-wrap,.cell-wrap')||cv.parentElement;const isFS=wrap.classList.contains('fullscreen');
+if(!isFS){
+document.querySelectorAll('.canvas-wrap.fullscreen,.cell-wrap.fullscreen').forEach(w=>{const c=w.querySelector('canvas');if(c&&c.id!==id)toggleFullscreen(c.id);});
+cv._fsOrigW=cv.width;cv._fsOrigH=cv.height;
+let bar=wrap.querySelector('.fs-bar');if(!bar){bar=document.createElement('div');bar.className='fs-bar';bar.innerHTML='<button onclick="undoCanvas(\''+id+'\')">↩ Undo</button><button onclick="clearCanvas(\''+id+'\')">🗑 Clear</button><span class="sep"></span><button class="fs-close-btn" onclick="toggleFullscreen(\''+id+'\')">✕ Done</button>';wrap.appendChild(bar);}
+wrap.classList.add('fullscreen');document.body.style.overflow='hidden';
+const nw=window.innerWidth,nh=window.innerHeight,sx=(nw*DPR)/cv.width,sy=(nh*DPR)/cv.height;
+cv.style.width=nw+'px';cv.style.height=nh+'px';cv.width=nw*DPR;cv.height=nh*DPR;
+(cv._strokes||[]).forEach(s=>{s.points.forEach(p=>{p.x*=sx;p.y*=sy;});});redrawCanvas(cv);
+}else{
+const ow=cv._fsOrigW,oh=cv._fsOrigH,sx=ow/cv.width,sy=oh/cv.height;
+(cv._strokes||[]).forEach(s=>{s.points.forEach(p=>{p.x*=sx;p.y*=sy;});});
+wrap.classList.remove('fullscreen');document.body.style.overflow='';
+cv.style.width=(ow/DPR)+'px';cv.style.height=(oh/DPR)+'px';cv.width=ow;cv.height=oh;redrawCanvas(cv);
+}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.canvas-wrap.fullscreen,.cell-wrap.fullscreen').forEach(w=>{const c=w.querySelector('canvas');if(c)toggleFullscreen(c.id);});}});
+
 async function exportPDF(){
+  document.querySelectorAll('.canvas-wrap.fullscreen,.cell-wrap.fullscreen').forEach(w=>{const c=w.querySelector('canvas');if(c)toggleFullscreen(c.id);});
   const name=document.getElementById('studentName').value.trim()||'Student';
   const overlay=document.getElementById('exportOverlay');overlay.classList.add('show');
   document.getElementById('pageRoot').classList.add('exporting');await new Promise(r=>setTimeout(r,100));
@@ -224,8 +262,8 @@ async function exportPDF(){
 function F(n,d){return`<span class="frac"><span class="num">${n}</span><span class="bar"></span><span class="den">${d}</span></span>`;}
 function O(s){return`<span class="op">${s}</span>`;}
 let cid=0;
-function W(h=200,lb='✍'){const id='c_'+(cid++);return`<div class="canvas-wrap"><span class="canvas-label">${lb}</span><canvas id="${id}" data-h="${h}"></canvas><div class="canvas-actions"><button title="Undo" onclick="undoCanvas('${id}')">⟲</button><button title="Clear" onclick="clearCanvas('${id}')">🗑</button></div></div>`;}
-function TC(id,h=70){return`<canvas id="${id}" class="cell-canvas" data-h="${h}" data-cell="true"></canvas>`;}
+function W(h=200,lb='✍'){const id='c_'+(cid++);return`<div class="canvas-wrap"><span class="canvas-label">${lb}</span><canvas id="${id}" data-h="${h}"></canvas><div class="canvas-actions"><button title="Undo" onclick="undoCanvas('${id}')">⟲</button><button title="Clear" onclick="clearCanvas('${id}')">✕</button><button class="fs-btn" title="Fullscreen" onclick="toggleFullscreen('${id}')">⤢</button></div></div>`;}
+function TC(id,h=70){return`<div class="cell-wrap" style="height:${h}px"><canvas id="${id}" class="cell-canvas" data-h="${h}" data-cell="true"></canvas><button class="cell-fs-btn" onclick="toggleFullscreen('${id}')" title="Expand">⤢</button></div>`;}
 let eid=0;
 function E(cn){const id='cn_'+(eid++);return`<button class="cn-toggle" data-target="${id}" onclick="toggleCn('${id}')" title="中文提示">👁</button><div class="cn-hint" id="${id}">${cn}</div>`;}
 function EH(cn){const id='cn_'+(eid++);return`<button class="cn-toggle" style="margin-left:4px;vertical-align:middle" data-target="${id}" onclick="toggleCn('${id}')" title="中文提示">👁</button><div class="cn-sub" id="${id}">${cn}</div>`;}
@@ -339,7 +377,7 @@ window.addEventListener('load',()=>{
   document.querySelectorAll('canvas[id^="c_"]').forEach(c=>initCanvas(c,parseInt(c.dataset.h)||200));
   document.querySelectorAll('canvas[data-cell="true"]').forEach(c=>initCanvas(c,parseInt(c.dataset.h)||70));
 });
-let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{allCanvases.forEach(c=>{const s=c._strokes||[],h=parseInt(c.dataset.h)||200,w=c.parentElement.getBoundingClientRect().width;c.style.width=w+'px';c.style.height=h+'px';c.width=w*DPR;c.height=h*DPR;c._strokes=s;redrawCanvas(c);});},200);});
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{allCanvases.forEach(c=>{const wr=c.closest('.canvas-wrap,.cell-wrap');if(wr&&wr.classList.contains('fullscreen'))return;const s=c._strokes||[],h=parseInt(c.dataset.h)||200,w=(wr||c.parentElement).getBoundingClientRect().width;c.style.width=w+'px';c.style.height=h+'px';c.width=w*DPR;c.height=h*DPR;c._strokes=s;redrawCanvas(c);});},200);});
 </script>
 </body>
 </html>
