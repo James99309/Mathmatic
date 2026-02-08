@@ -3,7 +3,7 @@ set -e
 
 # === 配置 ===
 GIT_REMOTE="git@github.com:James99309/Mathmatic.git"
-NAS_HOST="admin@ssh.jamesgpone.win"
+NAS_HOST="sg-nas"
 NAS_DIR="/volume1/docker/mathmatic/html"
 LOCAL_DIR="/Users/nijie/Documents/Mathematic"
 
